@@ -30,5 +30,15 @@ def test_live_generation():
     print(f"Instructions:\n{exercise.instructions}")
     print(f"Starter Code:\n{exercise.starter_code}")
 
+    # 4. Save validated output object to outputs/ directory
+    import os, json
+    output_dir = "outputs"
+    os.makedirs(output_dir, exist_ok=True)
+    
+    output_file = os.path.join(output_dir, f"{module.id}_generated.json")
+    with open(output_file, "w") as f:
+        json.dump(exercise.model_dump(), f, indent=2)
+    print(f"\nSaved generated exercise to: {output_file}")
+
 if __name__ == "__main__":
     test_live_generation()

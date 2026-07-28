@@ -3,6 +3,11 @@
 #SBATCH --account=PAS2699
 #SBATCH --gpus=1
 #SBATCH --time=01:00:00
+#SBATCH --output=/fs/ess/PAS2699/jseh_workspace/LLM_Curriculum_Testing/slurm_%j.log
+#SBATCH --error=/fs/ess/PAS2699/jseh_workspace/LLM_Curriculum_Testing/slurm_%j.err
+
+# Ensure outputs directory exists
+mkdir -p outputs
 
 # 1. Spin up local vLLM server on the allocated GPU compute node
 echo "Starting vLLM server on port 8000..."
