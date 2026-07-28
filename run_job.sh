@@ -6,8 +6,11 @@
 #SBATCH --output=/fs/ess/PAS2699/jseh_workspace/LLM_Curriculum_Testing/slurm_%j.log
 #SBATCH --error=/fs/ess/PAS2699/jseh_workspace/LLM_Curriculum_Testing/slurm_%j.err
 
-# Source user bash environment and activate virtual environment
-source ~/.bashrc 2>/dev/null || true
+# Change directory to the job submission folder
+cd "${SLURM_SUBMIT_DIR:-/fs/ess/PAS2699/jseh_workspace/LLM_Curriculum_Testing}"
+
+# Load module and activate virtual environment
+module load python/3.12 2>/dev/null || module load python/3.11 2>/dev/null || module load python 2>/dev/null || true
 
 if [ -f ".venv/bin/activate" ]; then
     source .venv/bin/activate
@@ -15,16 +18,14 @@ elif [ -f "venv/bin/activate" ]; then
     source venv/bin/activate
 fi
 
+echo "Using Python: $(which python)"
+
 # Ensure outputs directory exists
 mkdir -p outputs
 
 # 1. Spin up local vLLM server on the allocated GPU compute node
 echo "Starting vLLM server on port 8000..."
-if command -v vllm &> /dev/null; then
-    vllm serve Qwen/Qwen2.5-3B-Instruct --port 8000 &
-else
-    python -m vllm.entrypoints.openai.api_server --model Qwen/Qwen2.5-3B-Instruct --port 8000 &
-fi
+vllm serve Qwen/Qwen2.5-3B-Instruct --port 8000 &
 VLLM_PID=$!
 
 # 2. Wait until vLLM is ready to accept requests
