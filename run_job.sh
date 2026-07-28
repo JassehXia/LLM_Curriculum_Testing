@@ -13,8 +13,8 @@ cd "${SLURM_SUBMIT_DIR:-/fs/ess/PAS2699/jseh_workspace/LLM_Curriculum_Testing}"
 # Export HuggingFace cache to writable workspace
 export HF_HOME=/fs/ess/PAS2699/jseh_workspace/.cache/huggingface
 
-# Load OSC vllm module
-module load vllm/0.23.0 2>/dev/null || module load vllm 2>/dev/null || true
+# Load OSC vllm module (Ascend) or fallback to Python 3.12 (Pitzer)
+module load vllm/0.23.0 2>/dev/null || module load vllm 2>/dev/null || module load python/3.12 2>/dev/null || true
 
 if [ -f ".venv/bin/activate" ]; then
     source .venv/bin/activate
