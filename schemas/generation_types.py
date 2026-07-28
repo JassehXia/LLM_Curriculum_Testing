@@ -1,5 +1,6 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from typing import List, Optional
+from sandbox import run_in_sandbox
 
 class Slide(BaseModel):
     title: str = Field(description="Title of the slide")
@@ -16,3 +17,15 @@ class ValidatedExerciseSchema(BaseModel):
     starter_code: str = Field(description="Starter PyTorch skeleton code containing TODO comments")
     solution_code: str = Field(description="Complete, fully working PyTorch reference solution code")
     unit_test: str = Field(description="Standalone PyTorch unit tests with asserts to verify solution_code")
+
+    @model_validator(mode="after")
+    def validate_solution_with_unit_tests(self):
+        """Runs solution code against unit test in a subprocess"""
+        success, log = run_in_sandbox(self.solution_code, self.unit_test)
+        if not success:
+            raise ValueError(
+                f"Generated solution failed unit test verification in sandbox.\n"
+                f"Execution log:\n{log}\n"
+                f"Please fix the implementation errors in solution_code or unit_test."
+            )
+        return self
