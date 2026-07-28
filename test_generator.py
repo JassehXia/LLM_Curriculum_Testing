@@ -17,9 +17,10 @@ def test_live_generation():
     # 3. Request Structured Exercise Generation from Qwen
     print(f"Requesting exercise generation for: {module.title}...")
     exercise: ValidatedExerciseSchema = client.chat.completions.create(
-        model="Qwen/Qwen2.5-3B-Instruct",
+        model="Qwen/Qwen2.5-7B-Instruct",
         response_model=ValidatedExerciseSchema,
         max_retries=5,
+        max_tokens=2048,
         messages=[
             {"role": "system", "content": build_system_prompt()},
             {"role": "user", "content": build_exercise_prompt(module)}
