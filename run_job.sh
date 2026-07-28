@@ -1,5 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=qwen_curriculum
+#SBATCH --account=PAS2699
 #SBATCH --gpus=1
 #SBATCH --time=01:00:00
 
