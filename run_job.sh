@@ -26,9 +26,9 @@ mkdir -p outputs
 # Disable V1 engine for Volta V100 GPU (CC 7.0) compatibility
 export VLLM_USE_V1=0
 
-# 1. Spin up local vLLM server on the allocated GPU compute node
+# 1. Spin up local vLLM server on the allocated GPU compute node (using --v1 0 for V100 GPU compatibility)
 echo "Starting vLLM server on port 8000..."
-vllm serve Qwen/Qwen2.5-3B-Instruct --port 8000 &
+vllm serve Qwen/Qwen2.5-3B-Instruct --port 8000 --v1 0 &
 VLLM_PID=$!
 
 # 2. Wait until vLLM is ready to accept requests
