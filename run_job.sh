@@ -9,8 +9,8 @@
 # Change directory to the job submission folder
 cd "${SLURM_SUBMIT_DIR:-/fs/ess/PAS2699/jseh_workspace/LLM_Curriculum_Testing}"
 
-# Load module and activate virtual environment
-module load python/3.12 2>/dev/null || module load python/3.11 2>/dev/null || module load python 2>/dev/null || true
+# Load Python 3.11+ before activating venv
+module load python/3.12
 
 if [ -f ".venv/bin/activate" ]; then
     source .venv/bin/activate
