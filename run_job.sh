@@ -10,11 +10,13 @@
 # Change directory to the job submission folder
 cd "${SLURM_SUBMIT_DIR:-/fs/ess/PAS2699/jseh_workspace/LLM_Curriculum_Testing}"
 
-# Export HuggingFace cache to writable workspace
-export HF_HOME=/fs/ess/PAS2699/jseh_workspace/.cache/huggingface
-
 # Load OSC vllm module (Ascend) or fallback to Python 3.12 (Pitzer)
 module load vllm/0.23.0 2>/dev/null || module load vllm 2>/dev/null || module load python/3.12 2>/dev/null || true
+
+# Export HuggingFace cache variables to writable workspace AFTER module load to override OSC defaults
+export HF_HOME=/fs/ess/PAS2699/jseh_workspace/.cache/huggingface
+export HUGGINGFACE_HUB_CACHE=/fs/ess/PAS2699/jseh_workspace/.cache/huggingface
+export TRANSFORMERS_CACHE=/fs/ess/PAS2699/jseh_workspace/.cache/huggingface
 
 if [ -f ".venv/bin/activate" ]; then
     source .venv/bin/activate
