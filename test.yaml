@@ -1,0 +1,16 @@
+curriculum:
+  subject: "Applied Deep Learning in Medical Imaging"
+  target_level: "Undergraduate / Sophomore"
+  
+  modules:
+    - id: "unet_segmentation"
+      title: "U-Net Architecture & Skip Connections"
+      week: 3
+      context: "Focus on why skip connections prevent spatial information loss during upsampling. Relate to skin lesion boundary segmentation."
+      difficulty: "Intermediate"
+
+    - id: "gradcam_xai"
+      title: "Explainable AI with Grad-CAM"
+      week: 5
+      context: "Explain visual feature attribution and hook registration on PyTorch ViT/CNN blocks."
+      difficulty: "Advanced"
