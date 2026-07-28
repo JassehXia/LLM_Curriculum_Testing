@@ -23,6 +23,9 @@ echo "Using Python: $(which python)"
 # Ensure outputs directory exists
 mkdir -p outputs
 
+# Disable V1 engine for Volta V100 GPU (CC 7.0) compatibility
+export VLLM_USE_V1=0
+
 # 1. Spin up local vLLM server on the allocated GPU compute node
 echo "Starting vLLM server on port 8000..."
 vllm serve Qwen/Qwen2.5-3B-Instruct --port 8000 &
