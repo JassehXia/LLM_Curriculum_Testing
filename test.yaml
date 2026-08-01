@@ -3,7 +3,7 @@ curriculum:
   target_level: "Undergraduate / Sophomore"
   
   modules:
-    - id: "unet_segmentation"
+    - id: "pytorch basics"
       title: "U-Net Architecture & Skip Connections"
       week: 3
       context: "Focus on why skip connections prevent spatial information loss during upsampling. Relate to skin lesion boundary segmentation."

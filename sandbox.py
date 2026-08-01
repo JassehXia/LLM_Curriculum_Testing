@@ -15,9 +15,20 @@ def clean_code_snippet(code: str) -> str:
         s = s[:-3]
     return s.strip()
 
+def strip_fake_local_imports(code: str) -> str:
+    """Filter out fictitious module imports like 'from solution_code import ...' or 'from unet_model import ...'."""
+    valid_lines = []
+    for line in code.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("from ") and " import " in stripped:
+            if not any(stripped.startswith(f"from {pkg}") for pkg in ["torch", "typing", "unittest", "numpy", "math", "os", "sys"]):
+                continue
+        valid_lines.append(line)
+    return "\n".join(valid_lines)
+
 def run_in_sandbox(solution_code: str, unit_test: str, timeout: int = 120) -> Tuple[bool, str]:
     clean_solution = clean_code_snippet(solution_code)
-    clean_test = clean_code_snippet(unit_test)
+    clean_test = strip_fake_local_imports(clean_code_snippet(unit_test))
 
     # Ensure standard PyTorch imports are available if omitted by LLM
     imports_header = []

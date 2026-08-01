@@ -51,3 +51,6 @@ Thumbs.db
 # Docs
 ai/
 todo/
+
+# Local DB
+chroma_db/

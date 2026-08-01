@@ -12,7 +12,7 @@ spec:
     args:
       - "--model=Qwen/Qwen2.5-7B-Instruct"
       - "--port=8000"
-      - "--max-model-len=16384"
+      - "--max-model-len=32768"
       - "--gpu-memory-utilization=0.85"
     ports:
       - containerPort: 8000
@@ -46,7 +46,12 @@ spec:
                 operator: In
                 values:
                   - NVIDIA-A100-SXM4-80GB
+                  - NVIDIA-A100-80GB-PCIe
                   - NVIDIA-RTX-A6000
                   - NVIDIA-L40S
+                  - NVIDIA-L40
+                  - NVIDIA-A40
                   - NVIDIA-A10
+                  - NVIDIA-GeForce-RTX-3090
+                  - NVIDIA-RTX-A5000
   restartPolicy: Never
