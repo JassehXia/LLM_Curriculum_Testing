@@ -7,13 +7,14 @@ from openai import OpenAI
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Target Endpoint URL & Authentication Token
-BASE_URL = "https://stampede3.tacc.utexas.edu:60055/v1"
-TOKEN = "flexserv"
+BASE_URL = "http://localhost:8000/v1"
+TOKEN = "none"
 
 # Headers for REST & FlexServ Auth
 HEADERS = {
     "Authorization": f"Bearer {TOKEN}",
-    "x-flexserv-token": TOKEN
+    "x-flexserv-token": TOKEN,
+    "x-flexserv-secret": TOKEN
 }
 
 def test_raw_rest_api():

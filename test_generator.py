@@ -12,8 +12,8 @@ def test_live_generation():
     with open("test.yaml", "r") as f:
         config = yaml.safe_load(f)
     
-    # 2. Get Instructor Client
-    client = get_instructor_client(base_url="http://localhost:8000/v1")
+    # 2. Get Instructor Client (targeting local vLLM server)
+    client = get_instructor_client()
     
     # 3. Create outputs directory
     output_dir = "outputs"
@@ -27,15 +27,18 @@ def test_live_generation():
         print(f"==================================================")
         
         # Step A: Slide Deck Generation
-        print(f"1. Generating Slide Deck Schema for {module.id}...")
+        print(f"1. Fetching RAG context for {module.id}...")
+        slide_prompt = build_slide_prompt(module)
+        print(f"   -> RAG context retrieved! Requesting Slide Deck from vLLM ({module.id})...")
+        
         slide_deck: SlideDeckSchema = client.chat.completions.create(
-            model="Qwen/Qwen2.5-7B-Instruct",
+            model="Qwen/Qwen2.5-Coder-32B-Instruct-AWQ",
             response_model=SlideDeckSchema,
             max_retries=3,
-            max_tokens=2048,
+            max_tokens=4096,
             messages=[
                 {"role": "system", "content": build_system_prompt()},
-                {"role": "user", "content": build_slide_prompt(module)}
+                {"role": "user", "content": slide_prompt}
             ]
         )
         
@@ -49,16 +52,19 @@ def test_live_generation():
         build_pptx_deck(slide_deck, pptx_path)
         print(f"  -> Slide Deck Generated & Saved to: {pptx_path}")
 
-        # Step B: Sandbox-Validated Exercise Generation
-        print(f"2. Generating Sandbox-Validated Exercise for {module.id}...")
+        # Step B: Exercise Generation with Self-Healing Sandbox Validation
+        print(f"2. Fetching RAG exercise code context for {module.id}...")
+        exercise_prompt = build_exercise_prompt(module, slide_deck=slide_deck)
+        print(f"   -> RAG exercise code context retrieved! Requesting Exercise from vLLM ({module.id})...")
+
         exercise: ValidatedExerciseSchema = client.chat.completions.create(
-            model="Qwen/Qwen2.5-7B-Instruct",
+            model="Qwen/Qwen2.5-Coder-32B-Instruct-AWQ",
             response_model=ValidatedExerciseSchema,
-            max_retries=7,
-            max_tokens=2048,
+            max_retries=5,
+            max_tokens=4096,
             messages=[
                 {"role": "system", "content": build_system_prompt()},
-                {"role": "user", "content": build_exercise_prompt(module, slide_deck=slide_deck)}
+                {"role": "user", "content": exercise_prompt}
             ]
         )
         

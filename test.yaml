@@ -3,11 +3,11 @@ curriculum:
   target_level: "Undergraduate / Sophomore"
   
   modules:
-    - id: "pytorch basics"
-      title: "U-Net Architecture & Skip Connections"
+    - id: "pytorch-basics"
+      title: "pytorch basics"
       week: 3
-      context: "Focus on why skip connections prevent spatial information loss during upsampling. Relate to skin lesion boundary segmentation."
-      difficulty: "Intermediate"
+      context: "Focus on a basic MLP"
+      difficulty: "Beginner"
 
     - id: "gradcam_xai"
       title: "Explainable AI with Grad-CAM"

@@ -10,10 +10,11 @@ spec:
   - name: vllm-container
     image: vllm/vllm-openai:latest
     args:
-      - "--model=Qwen/Qwen2.5-7B-Instruct"
+      - "--model=Qwen/Qwen2.5-Coder-32B-Instruct-AWQ"
+      - "--quantization=awq"
       - "--port=8000"
       - "--max-model-len=32768"
-      - "--gpu-memory-utilization=0.85"
+      - "--gpu-memory-utilization=0.90"
     ports:
       - containerPort: 8000
         name: http
