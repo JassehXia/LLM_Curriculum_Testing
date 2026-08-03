@@ -37,6 +37,7 @@ htmlcov/
 
 # Generated Outputs & Temporary Files
 outputs/
+first_phase_outputs/
 Week_*/
 *.pptx
 tmp/

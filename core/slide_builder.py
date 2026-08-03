@@ -6,7 +6,7 @@ from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.shapes.autoshape import Shape
-from schemas.generation_types import SlideDeckSchema
+from .schemas import SlideDeckSchema
 
 def build_pptx_deck(deck_data: Union[SlideDeckSchema, dict], output_path: str) -> str:
     """
@@ -98,41 +98,32 @@ def build_pptx_deck(deck_data: Union[SlideDeckSchema, dict], output_path: str) -
 
         for i, bp in enumerate(slide_info.bullet_points):
             p_bp = tf_bullets.paragraphs[0] if i == 0 else tf_bullets.add_paragraph()
-            p_bp.text = f"•  {bp}"
+            p_bp.text = f"• {bp}"
             p_bp.font.size = Pt(18)
             p_bp.font.color.rgb = DARK_TEXT
             p_bp.font.name = "Calibri"
-            p_bp.space_after = Pt(14)
+            p_bp.space_before = Pt(12)
 
-        # Code Snippet Box (if present)
+        # Optional Code Snippet Panel
         if has_code:
-            code_left = Inches(6.8)
-            code_top = Inches(1.8)
-            code_w = Inches(5.7)
-            code_h = Inches(5.0)
-
-            # Code Background Rectangle
-            code_bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, code_left, code_top, code_w, code_h)
+            code_bg = slide.shapes.add_shape(
+                MSO_SHAPE.RECTANGLE, Inches(6.8), Inches(1.8), Inches(5.7), Inches(5.0)
+            )
             code_bg.fill.solid()
             code_bg.fill.fore_color.rgb = CODE_BG
-            code_bg.line.color.rgb = RGBColor(51, 65, 85) # Slate 700
+            code_bg.line.color.rgb = CODE_BG
 
-            # Code Text Box
-            code_tf = code_bg.text_frame
-            code_tf.word_wrap = True
-            code_tf.margin_left = Inches(0.2)
-            code_tf.margin_right = Inches(0.2)
-            code_tf.margin_top = Inches(0.2)
-            code_tf.margin_bottom = Inches(0.2)
+            code_box = slide.shapes.add_textbox(Inches(6.9), Inches(1.9), Inches(5.5), Inches(4.8))
+            tf_code = code_box.text_frame
+            tf_code.word_wrap = True
+            
+            p_code = tf_code.paragraphs[0]
+            p_code.text = snippet
+            p_code.font.size = Pt(13)
+            p_code.font.name = "Consolas"
+            p_code.font.color.rgb = CODE_TEXT
 
-            lines = snippet.splitlines()
-            for j, line in enumerate(lines):
-                p_code = code_tf.paragraphs[0] if j == 0 else code_tf.add_paragraph()
-                p_code.text = line
-                p_code.font.size = Pt(12)
-                p_code.font.name = "Consolas"
-                p_code.font.color.rgb = CODE_TEXT
-
-    os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+    # Save presentation
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     prs.save(output_path)
     return output_path

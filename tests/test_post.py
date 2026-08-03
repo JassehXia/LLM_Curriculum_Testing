@@ -6,7 +6,7 @@ headers = {
 }
 
 payload = {
-    "model": "Qwen/Qwen2.5-Coder-32B-Instruct",
+    "model": "mistralai/Codestral-22B-v0.1",
     "messages": [
         {"role": "user", "content": "Hello! Confirm connection."}
     ],

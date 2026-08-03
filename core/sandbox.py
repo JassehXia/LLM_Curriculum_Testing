@@ -5,7 +5,7 @@ import subprocess
 from typing import Tuple
 
 def clean_code_snippet(code: str) -> str:
-    """ Remove markdown backticks from LLM code outputs."""
+    """Remove markdown backticks from LLM code outputs."""
     s = code.strip()
     if s.startswith("```python"):
         s = s[9:]
@@ -16,7 +16,7 @@ def clean_code_snippet(code: str) -> str:
     return s.strip()
 
 def strip_fake_local_imports(code: str) -> str:
-    """Filter out fictitious module imports like 'from solution_code import ...' or 'from unet_model import ...'."""
+    """Filter out local module imports like 'from solution import ...' or 'from pytorch_basics_solution import ...'."""
     valid_lines = []
     for line in code.splitlines():
         stripped = line.strip()
@@ -69,7 +69,30 @@ def run_in_sandbox(solution_code: str, unit_test: str, timeout: int = 120) -> Tu
         if result.returncode == 0:
             return True, result.stdout
         else:
-            error_msg = f"STDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}"
+            # HYBRID STATIC-DYNAMIC ANALYSIS: Extract failure line & code context from stack trace
+            stderr = result.stderr
+            script_lines = combined_script.splitlines()
+            
+            diagnostic_info = []
+            for line in stderr.splitlines():
+                if "line " in line and ".py" in line:
+                    try:
+                        parts = line.split("line ")
+                        line_num = int(parts[1].split(",")[0].split()[0])
+                        if 1 <= line_num <= len(script_lines):
+                            code_at_line = script_lines[line_num - 1].strip()
+                            diagnostic_info.append(f"• Exception at Line {line_num}: `{code_at_line}`")
+                    except Exception:
+                        pass
+            
+            diag_str = "\n".join(diagnostic_info) if diagnostic_info else "• See stack trace below for failure location."
+            
+            error_msg = (
+                f"=== HYBRID RUNTIME DIAGNOSTIC ===\n"
+                f"{diag_str}\n\n"
+                f"STDOUT:\n{result.stdout}\n"
+                f"STDERR:\n{result.stderr}"
+            )
             return False, error_msg
 
     except subprocess.TimeoutExpired:
@@ -79,5 +102,3 @@ def run_in_sandbox(solution_code: str, unit_test: str, timeout: int = 120) -> Tu
     finally:
         if os.path.exists(tmp_path):
             os.unlink(tmp_path)
-    
-

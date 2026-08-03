@@ -10,22 +10,31 @@ spec:
   - name: vllm-container
     image: vllm/vllm-openai:latest
     args:
-      - "--model=Qwen/Qwen2.5-Coder-32B-Instruct-AWQ"
+      - "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ"
       - "--quantization=awq"
+      - "--host=0.0.0.0"
       - "--port=8000"
       - "--max-model-len=32768"
-      - "--gpu-memory-utilization=0.90"
+      - "--gpu-memory-utilization=0.95"
     ports:
       - containerPort: 8000
         name: http
+    readinessProbe:
+      httpGet:
+        path: /v1/models
+        port: 8000
+      initialDelaySeconds: 60
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 30
     resources:
       limits:
-        cpu: "8"
-        memory: "32Gi"
+        cpu: "6"
+        memory: "24Gi"
         nvidia.com/gpu: "1"
       requests:
-        cpu: "4"
-        memory: "16Gi"
+        cpu: "2"
+        memory: "8Gi"
         nvidia.com/gpu: "1"
     volumeMounts:
       - mountPath: /dev/shm
@@ -42,17 +51,37 @@ spec:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
-          - matchExpressions:
-              - key: nvidia.com/gpu.product
-                operator: In
-                values:
-                  - NVIDIA-A100-SXM4-80GB
-                  - NVIDIA-A100-80GB-PCIe
-                  - NVIDIA-RTX-A6000
-                  - NVIDIA-L40S
-                  - NVIDIA-L40
-                  - NVIDIA-A40
-                  - NVIDIA-A10
-                  - NVIDIA-GeForce-RTX-3090
-                  - NVIDIA-RTX-A5000
+        - matchExpressions:
+          - key: kubernetes.io/hostname
+            operator: NotIn
+            values:
+            - nautilusg02.sci.cwru.edu
+          - key: nvidia.com/gpu.product
+            operator: In
+            values:
+            - NVIDIA-A100-SXM4-80GB
+            - NVIDIA-A100-80GB-PCIe
+            - NVIDIA-A100-PCIE-40GB
+            - NVIDIA-A100-SXM4-40GB
+            - NVIDIA-H100-80GB-HBM3
+            - NVIDIA-H100-PCIe
+            - NVIDIA-H100-NVL
+            - NVIDIA-L40S
+            - NVIDIA-L40
+            - NVIDIA-A40
+            - NVIDIA-RTX-6000-Ada-Generation
+            - NVIDIA-RTX-A6000
+            - NVIDIA-RTX-A5000
+            - NVIDIA-RTX-A4500
+            - NVIDIA-GeForce-RTX-4090
+            - NVIDIA-GeForce-RTX-3090
+            - NVIDIA-GeForce-RTX-3090-Ti
+            - NVIDIA-TITAN-RTX
+            - NVIDIA-Quadro-RTX-8000
+            - NVIDIA-Quadro-RTX-6000
+            - NVIDIA-A10G
+            - NVIDIA-A10
+            - NVIDIA-A30
+            - NVIDIA-GH200-480GB
+
   restartPolicy: Never

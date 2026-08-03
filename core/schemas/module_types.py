@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import List, Optional, Dict, Any
 
 class Module(BaseModel):
     id: str

@@ -4,8 +4,7 @@ import urllib3
 import requests
 import json
 import time
-from schemas import Module
-from context import build_system_prompt, build_slide_prompt
+from core import Module, build_system_prompt, build_slide_prompt
 
 urllib3.disable_warnings()
 

@@ -2,7 +2,8 @@
   "venvPath": ".",
   "venv": ".venv",
   "extraPaths": [
-    "."
+    ".",
+    "core"
   ],
   "executionEnvironments": [
     {

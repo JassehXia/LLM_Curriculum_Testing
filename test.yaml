@@ -5,12 +5,12 @@ curriculum:
   modules:
     - id: "pytorch-basics"
       title: "pytorch basics"
-      week: 3
+      week: 1
       context: "Focus on a basic MLP"
       difficulty: "Beginner"
 
-    - id: "gradcam_xai"
-      title: "Explainable AI with Grad-CAM"
+    - id: "convolutional-neural-network"
+      title: "Convolutional Neural Network"
       week: 5
       context: "Explain visual feature attribution and hook registration on PyTorch ViT/CNN blocks."
       difficulty: "Advanced"
