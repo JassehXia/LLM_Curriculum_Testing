@@ -1,16 +1,149 @@
 curriculum:
-  subject: "Applied Deep Learning in Medical Imaging"
-  target_level: "Undergraduate / Sophomore"
+  subject: "Applied Deep Learning in Medical & Computer Vision"
+  target_level: "Undergraduate / Graduate"
+  model: "Qwen/Qwen2.5-Coder-32B-Instruct"
   
   modules:
     - id: "pytorch-basics"
-      title: "pytorch basics"
+      title: "PyTorch Basics & MLP Architecture"
       week: 1
-      context: "Focus on a basic MLP"
+      context: "Focus on building a basic Multi-Layer Perceptron (MLP) for binary classification."
       difficulty: "Beginner"
 
+    - id: "tensors-autograd"
+      title: "Tensor Operations & Autograd Engine"
+      week: 2
+      context: "Explain PyTorch autograd computational graphs, backward passes, and gradient tracking."
+      difficulty: "Beginner"
+
+    - id: "loss-functions"
+      title: "Custom Loss Functions & Weighted Metrics"
+      week: 3
+      context: "Implement Focal Loss and Weighted Cross-Entropy to handle severe class imbalance and false negatives."
+      difficulty: "Intermediate"
+
+    - id: "optimizers-schedulers"
+      title: "Optimization & Learning Rate Schedules"
+      week: 4
+      context: "Compare AdamW, SGD with Momentum, and Cosine Annealing learning rate schedulers."
+      difficulty: "Intermediate"
+
     - id: "convolutional-neural-network"
-      title: "Convolutional Neural Network"
+      title: "Convolutional Neural Networks (CNN)"
       week: 5
-      context: "Explain visual feature attribution and hook registration on PyTorch ViT/CNN blocks."
+      context: "Build a multi-layer CNN with MaxPool and BatchNorm for spatial feature extraction."
+      difficulty: "Intermediate"
+
+    - id: "residual-networks"
+      title: "Residual Networks & Skip Connections"
+      week: 6
+      context: "Implement ResNet bottleneck blocks and residual skip connections in PyTorch."
+      difficulty: "Intermediate"
+
+    - id: "data-augmentation"
+      title: "Data Augmentation & Regularization"
+      week: 7
+      context: "Implement Mixup, CutMix, and Dropout regularization to prevent overfitting."
+      difficulty: "Intermediate"
+
+    - id: "transfer-learning"
+      title: "Transfer Learning & Fine-Tuning"
+      week: 8
+      context: "Fine-tune a pretrained ResNet-50 backbone while freezing early convolutional layers."
+      difficulty: "Intermediate"
+
+    - id: "semantic-segmentation"
+      title: "U-Net & Semantic Segmentation"
+      week: 9
+      context: "Build a U-Net architecture with encoder-decoder skip connections for pixel-wise mask prediction."
+      difficulty: "Advanced"
+
+    - id: "instance-segmentation"
+      title: "Instance Segmentation & Mask Loss"
+      week: 10
+      context: "Implement region proposal heads and Dice Loss for multi-object segmentation."
+      difficulty: "Advanced"
+
+    - id: "recurrent-neural-networks"
+      title: "LSTMs & Sequential Neural Networks"
+      week: 11
+      context: "Build a bidirectional LSTM module for sequence modeling and temporal feature processing."
+      difficulty: "Intermediate"
+
+    - id: "transformers-attention"
+      title: "Multi-Head Self-Attention Engine"
+      week: 12
+      context: "Implement a scaled dot-product Multi-Head Attention layer from scratch in PyTorch."
+      difficulty: "Advanced"
+
+    - id: "vision-transformers"
+      title: "Vision Transformers (ViT) & Patch Embeddings"
+      week: 13
+      context: "Implement image patchifying, positional embeddings, and ViT Transformer blocks."
+      difficulty: "Advanced"
+
+    - id: "explainable-ai-gradcam"
+      title: "Explainable AI & Grad-CAM Attribution"
+      week: 14
+      context: "Register backward hooks on ViT and CNN blocks to generate Grad-CAM visual heatmaps."
+      difficulty: "Advanced"
+
+    - id: "self-supervised-dino"
+      title: "Self-Supervised Learning with DINO"
+      week: 15
+      context: "Explore DINO self-supervised feature extraction and student-teacher momentum encoders."
+      difficulty: "Advanced"
+
+    - id: "segment-anything-sam"
+      title: "Segment Anything Model (SAM) Prompting"
+      week: 16
+      context: "Implement bounding box and point prompt mask decoding using SAM feature embeddings."
+      difficulty: "Advanced"
+
+    - id: "contrastive-learning"
+      title: "SimCLR & Contrastive Representation Learning"
+      week: 17
+      context: "Implement NT-Xent (Normalized Temperature-scaled Cross Entropy) loss for contrastive learning."
+      difficulty: "Advanced"
+
+    - id: "generative-adversarial-networks"
+      title: "Generative Adversarial Networks (GANs)"
+      week: 18
+      context: "Build a Deep Convolutional GAN (DCGAN) with Generator and Discriminator adversarial losses."
+      difficulty: "Advanced"
+
+    - id: "diffusion-models"
+      title: "Latent Diffusion & Noise Scheduling"
+      week: 19
+      context: "Implement DDPM forward noise addition and U-Net noise prediction loss loops."
+      difficulty: "Expert"
+
+    - id: "multimodal-clip"
+      title: "CLIP Multimodal Text-Image Alignment"
+      week: 20
+      context: "Implement cross-modal similarity matrices and contrastive text-image alignment loss."
+      difficulty: "Advanced"
+
+    - id: "model-quantization"
+      title: "Model Quantization & AWQ Compression"
+      week: 21
+      context: "Explore 8-bit/4-bit quantization, AWQ weights, and memory-efficient inference."
+      difficulty: "Advanced"
+
+    - id: "hyperparameter-tuning"
+      title: "Automated Hyperparameter Optimization"
+      week: 22
+      context: "Implement automated hyperparameter tuning and learning rate search loops."
+      difficulty: "Intermediate"
+
+    - id: "uncertainty-estimation"
+      title: "Monte Carlo Dropout & Uncertainty Calibration"
+      week: 23
+      context: "Implement MC Dropout during inference to compute predictive variance and confidence bounds."
+      difficulty: "Advanced"
+
+    - id: "capstone-deployment"
+      title: "Production Deployment & TorchScript Export"
+      week: 24
+      context: "Export PyTorch models to TorchScript and ONNX for optimized production deployment."
       difficulty: "Advanced"

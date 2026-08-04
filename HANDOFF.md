@@ -1,132 +1,91 @@
-# Autonomous LLM Curriculum Generation Pipeline - System Documentation
+# Autonomous LLM Curriculum Generation Pipeline - System Documentation & Handoff
 
-## 1. Overview & Vision
+## 1. Overview & System Vision
 
-For this iteration, the pipeline moves from **templated practice** to a **complete text-based, LLM content-generated curriculum**. Given high-level educator directives in a YAML configuration file, the system autonomously synthesizes grounded presentation slides, PyTorch exercise skeletons, reference solutions, and unit tests.
+This system is an **Autonomous Telemetry-Driven LLM Curriculum Generation Pipeline**. It converts high-level educator directives (`test.yaml`) and Phase 1 machine learning training telemetry (`first_phase_outputs/`) into complete, domain-grounded teaching suites.
 
----
+For every curriculum module, the pipeline autonomously synthesizes:
 
-## 2. System Setup & Tech Stack
-
-The key to reliable generation is a **constrained setup for deterministic output**, while ensuring outputs are **verified and tested on the fly**:
-
-* **LLM Engine:** `Qwen/Qwen2.5-7B-Instruct` served via `vLLM` / **Tapis FlexServ** on GPU infrastructure.
-* **Structured Input/Output:** **Instructor** library wrapping OpenAI API specs for strict Pydantic v2 schema enforcement.
-* **Self-Healing Error Correction:** Automated retry loops where runtime exceptions and unit test failures are caught and appended back into the prompt for iterative LLM auto-repair.
-* **Presentation Engine:** **`python-pptx`** for programmatic 16:9 widescreen PowerPoint slide deck generation.
-* **Local RAG Vector Store:** **ChromaDB** persistent vector index (`./chroma_db`) holding 5,290 embedded text and PyTorch code chunks from `rasbt/deeplearning-models` via `all-MiniLM-L6-v2`.
+1. **Student Concept & Domain Overview Document** (`.md`)
+2. **Widescreen Presentation Slide Deck** (`.pptx`)
+3. **Student Starter Skeleton Code** (`.py`)
+4. **Verified PyTorch Reference Solution** (`.py`)
+5. **Standalone Property-Based Unit Tests** (`.py`)
+6. **Structured Metadata Payload** (`.json`)
 
 ---
 
-## 3. User Configuration (`test.yaml`)
+## 2. Infrastructure & System Stack
 
-Educators simply add or modify their curriculum modules in the input YAML configuration file:
-
-```yaml
-curriculum:
-  subject: "Applied Deep Learning in Medical Imaging"
-  target_level: "Undergraduate / Sophomore"
-  
-  modules:
-    - id: "unet_segmentation"
-      title: "U-Net Architecture & Skip Connections"
-      week: 3
-      context: "Focus on why skip connections prevent spatial information loss during upsampling. Relate to skin lesion boundary segmentation."
-      difficulty: "Intermediate"
-
-    - id: "gradcam_xai"
-      title: "Explainable AI with Grad-CAM"
-      week: 5
-      context: "Explain visual feature attribution and hook registration on PyTorch ViT/CNN blocks."
-      difficulty: "Advanced"
-```
-
-### YAML Configuration Fields
-
-* `id`: Unique string identifier for the module (used in output filenames).
-* `title`: Full human-readable title of the curriculum module.
-* `week`: Target course week in which the module resides.
-* `context`: Specific directives provided by the educator detailing what concepts to emphasize.
-* `difficulty`: Difficulty level (`Basic`, `Intermediate`, `Advanced`) used for calibration.
+* **LLM Serving Engine:** `Qwen/Qwen2.5-Coder-14B-Instruct-AWQ` served via `vLLM` on NRP Kubernetes cluster (`sailab` namespace) with a **32,768 token context window**.
+* **Structured Generation Framework:** **Instructor** wrapping OpenAI-compatible `/v1/chat/completions` for strict Pydantic v2 schema enforcement.
+* **3-Stage Agent Architecture:**
+  * **Agent 0 (Curriculum Director & Problem Formulation Agent)**: Ingests Phase 1 telemetry, extracts statistical contrastive samples, formulates domain shape contracts, and synthesizes Markdown overview documents (`.md`).
+  * **Agent 1 (Code Generator Agent)**: Generates student starter code and reference PyTorch solutions.
+  * **Agent 2 (Adversarial QA Agent)**: Synthesizes property-based unit test suites and validates execution in the sandbox.
+* **Self-Healing Execution Sandbox:** Subprocess execution environment running inside the project `.venv` (`sandbox.py`). If unit test verification fails, runtime tracebacks are fed back to the LLM for automated iterative repair.
+* **Presentation Engine:** **`python-pptx`** for programmatic 16:9 widescreen PowerPoint deck creation (`slide_builder.py`).
+* **Local RAG Vector Store:** **ChromaDB** persistent vector index (`./chroma_db`) containing 5,290 embedded text and PyTorch code chunks from `rasbt/deeplearning-models` via `all-MiniLM-L6-v2`.
 
 ---
 
-## 4. System Execution Flow
+## 3. Telemetry Ingestion & Domain-Agnostic Sampling
 
-```
-1. GPU Endpoint Setup ──> 2. Educator YAML Input ──> 3. RAG Retrieval Engine ──> 4. Qwen Generation & Sandbox Verification
-   - vLLM / FlexServ         - Module title, week        - ChromaDB (./chroma_db)      - Step A: Slide Deck (.pptx)
-   - OpenAI API Spec         - Directives & Context      - Top 2-3 Snippets (< 5ms)     - Step B: Sandbox Retry Loop
-```
+The system ingests real dataset metrics and execution logs from Phase 1 (`first_phase_outputs/`):
 
-### A. Infrastructure Setup
+* `run_summary.json`: Overall accuracy, AUC-ROC, class balance, and specific error counts (e.g. false negatives).
+* `cv_report.json`: 5-fold cross-validation performance metrics.
+* `class_mapping.json`: Domain class labels (e.g., `{"0": "benign", "1": "malignant"}`).
+* `results.csv`: Per-sample prediction metrics, probabilities, SAM masks, and Grad-CAM map paths.
 
-Set up vLLM / Tapis FlexServ to expose an OpenAI-compliant REST endpoint returning structured JSON payloads (`/v1/chat/completions`).
+### Universal 4-Sample Contrastive Matrix
 
-### B. Educator Input & Prompt Expansion
+To remain 100% domain-agnostic across Vision, NLP, Audio, and Tabular tasks, `core/telemetry.py` extracts 4 representative data points using universal statistical rules:
 
-`test_generator.py` ingests module specifications from `test.yaml`, combining them with system rules enforcing Bloom's Taxonomy, ABET learning outcomes, and self-contained PyTorch script rules.
-
-### C. Local RAG Research & Retrieval Phase
-
-Instead of web scraping, the system queries a local persistent **ChromaDB** index (`./chroma_db`):
-
-* Pulls official documentation snippets, conceptual explanations, and verified PyTorch code structures from [rasbt/deeplearning-models](https://github.com/rasbt/deeplearning-models).
-* Injects top 2-3 matching snippets ($\sim 1,000$ tokens) into the prompt context, leaving 95%+ of Qwen's 32,768 context window free.
-
-### D. Qwen 3-Step Generation & Verification
-
-1. **Research Grounding:** Pulls local vector embeddings from ChromaDB for topic context.
-2. **Slide Deck Generation:** Uses `python-pptx` and `SlideDeckSchema` to synthesize widescreen PowerPoint presentation decks (`presentation.pptx`).
-3. **Sandbox Verification & Self-Healing:** Uses Instructor to run live PyTorch code execution inside a `.venv` subprocess (`sandbox.py`). If unit tests fail, the error log is fed back to Qwen for auto-correction before saving.
+1. **`[TOP_SUCCESS]`**: High-confidence correct prediction ($P \ge 0.99$).
+2. **`[HARD_FAILURE]`**: High-confidence misclassifications (e.g., False Negatives).
+3. **`[BOUNDARY_UNCERTAINTY]`**: Samples nearest the 50/50 decision boundary.
+4. **`[MINORITY_SAMPLE]`**: Representative instance from the least frequent class.
 
 ---
 
-## 5. Verification & Self-Healing Sandbox Loop
+## 4. 3-Stage Agent Architecture & Execution Flow
 
 ```
-┌──────────────────────────┐
-│  Qwen Generates JSON     │ (solution_code + unit_test)
-└────────────┬─────────────┘
-             │
-             ▼
-┌──────────────────────────┐
-│  Pydantic Field Validator│ (@model_validator mode="after")
-└────────────┬─────────────┘
-             │
-             ▼
-┌──────────────────────────┐
-│ Live Subprocess Execution│ (sandbox.py inside .venv)
-└────────────┬─────────────┘
-             │
-       ┌─────┴─────────────────────────────────┐
-       │                                       │
-       ▼                                       ▼
- [Tests Pass]                             [Tests Fail]
-  Return validated object                  Raise ValueError with trace log
-  Proceed to file export                   Instructor appends error to prompt
-                                           Qwen retries generation (up to 7x)
+[ Phase 1 Telemetry ] ──> [ Agent 0: Problem Formulation ] ──> [ Agent 1: Code Generator ] ──> [ Agent 2: QA Sandbox Agent ]
+ (run_summary, csv,       - Analyzes 4 contrastive samples     - Synthesizes PyTorch solution   - Writes property tests
+  class_mapping)          - Formulates shape contracts         - Builds student starter code    - Runs .venv sandbox check
+                          - Outputs {module}_overview.md       - Aligns with Agent 0 problem    - Triggers self-healing retries
 ```
 
-1. **Generation:** Qwen generates `solution_code` and `unit_test` inside `ValidatedExerciseSchema`.
-2. **Validation:** Pydantic triggers `@model_validator` which passes the code directly to `sandbox.py`.
-3. **Execution:** A subprocess executes `solution_code` + `unit_test` cleanly inside the project's `.venv`.
-4. **Verification Outcome:**
-   * **If Tests Pass:** The process returns the validated object and exports files to `outputs/`.
-   * **If Tests Fail:** `sandbox.py` captures the exact Python stack trace; Instructor catches the error, appends it to the prompt history, and Qwen retries auto-repair (up to 7 iterations).
-
----
-
-## 6. Final Output Structure (`outputs/`)
-
-Each module generates an isolated set of verified teaching assets:
+### Final Output Suite per Module (`outputs/`)
 
 ```
 outputs/
-├── {id}_presentation.pptx       # Native widescreen PowerPoint slide deck
-├── {id}_slides.json             # Structured slide deck schema JSON
+├── {id}_overview.md             # Student Markdown concept & domain overview
+├── {id}_presentation.pptx       # Native 16:9 widescreen PowerPoint slide deck
+├── {id}_slides.json             # Slide deck JSON schema
 ├── {id}_exercise.py             # Student starter skeleton code with TODOs
 ├── {id}_solution.py             # Verified reference PyTorch solution
-├── {id}_test.py                 # Standalone PyTorch unit test suite
-└── {id}_generated.json          # Full metadata payload
+├── {id}_test.py                 # Standalone PyTorch unit test harness
+└── {id}_generated.json          # Complete module metadata payload
 ```
+
+---
+
+## 5. Addressed Architectural Concerns & Roadmap
+
+### A. Pseudo-Code & Uninitialized Boilerplate (`DataLoader(...)`, `DEVICE`)
+
+* **Observation**: Base Qwen occasionally outputs tutorial-style boilerplate (`DataLoader(...)`, `features.to(DEVICE)`) from its base pretraining corpus.
+* **Mitigation**: Added strict system prompt guardrails forbidding placeholder ellipses `...` and requiring self-contained module definitions.
+
+### B. QLoRA Fine-Tuning Recommendation for Qwen 14B
+
+* **Recommendation**: Fine-tune `Qwen2.5-Coder-14B` using **QLoRA** on ~150 curated clean PyTorch solution pairs.
+* **vLLM Multi-LoRA Serving**: vLLM natively supports Multi-LoRA serving (`--enable-lora`). You can run Agent 0, Agent 1, and Agent 2 adapters simultaneously on the same base 14B vLLM instance with **zero extra GPU memory cost**.
+
+### C. Conceptual Verification vs. Full Dataset Loops
+
+* The execution sandbox intentionally tests **architectural contracts, shape invariants, custom loss functions, and hook mechanisms** using in-memory synthetic tensors.
+* Disk DataLoaders and multi-epoch convergence training are omitted from sandbox execution to maintain 100% deterministic, instant verification within the 120-second timeout.

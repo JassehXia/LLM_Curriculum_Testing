@@ -55,3 +55,6 @@ todo/
 
 # Local DB
 chroma_db/
+
+# Model Weights
+.pt

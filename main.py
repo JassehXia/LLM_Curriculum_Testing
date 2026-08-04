@@ -20,13 +20,16 @@ from core import (
     ProblemStatementSchema
 )
 
-MODEL_NAME = "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ"
+DEFAULT_MODEL_NAME = "Qwen/Qwen2.5-Coder-32B-Instruct"
 
 def generate_curriculum(config_path: str = "test.yaml", output_dir: str = "outputs", telemetry_dir: str = "first_phase_outputs"):
     """Main curriculum generation execution pipeline with Agent 0 problem formulation."""
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
     
+    model_name = config.get("curriculum", {}).get("model") or config.get("model") or DEFAULT_MODEL_NAME
+    print(f"[Pipeline Configuration] Using LLM Model: {model_name}")
+
     client = get_instructor_client()
     os.makedirs(output_dir, exist_ok=True)
 
@@ -43,7 +46,7 @@ def generate_curriculum(config_path: str = "test.yaml", output_dir: str = "outpu
         
         # Step 0: Agent 0 - Problem Formulation Agent
         print(f"0. Agent 0: Formulating domain problem statement & Markdown overview from Phase 1 telemetry ({module.id})...")
-        problem_formulation: ProblemStatementSchema = formulate_problem_statement(module, telemetry, client, MODEL_NAME)
+        problem_formulation: ProblemStatementSchema = formulate_problem_statement(module, telemetry, client, model_name)
         print(f"   -> Formulated Title: {problem_formulation.title}")
         print(f"   -> Domain Directive: {problem_formulation.problem_statement[:120]}...")
 
@@ -59,7 +62,7 @@ def generate_curriculum(config_path: str = "test.yaml", output_dir: str = "outpu
         print(f"   -> Requesting Slide Deck from vLLM ({module.id})...")
         
         slide_deck: SlideDeckSchema = client.chat.completions.create(
-            model=MODEL_NAME,
+            model=model_name,
             response_model=SlideDeckSchema,
             max_retries=3,
             max_tokens=4096,
@@ -84,7 +87,7 @@ def generate_curriculum(config_path: str = "test.yaml", output_dir: str = "outpu
         exercise_prompt = build_exercise_prompt(module, slide_deck=slide_deck, problem_formulation=problem_formulation)
 
         solution_result: ExerciseSolutionSchema = client.chat.completions.create(
-            model=MODEL_NAME,
+            model=model_name,
             response_model=ExerciseSolutionSchema,
             max_retries=3,
             max_tokens=4096,
@@ -99,7 +102,7 @@ def generate_curriculum(config_path: str = "test.yaml", output_dir: str = "outpu
         qa_prompt = build_qa_prompt(module, solution_result.solution_code, problem_formulation=problem_formulation)
 
         unit_test_result: UnitTestSchema = client.chat.completions.create(
-            model=MODEL_NAME,
+            model=model_name,
             response_model=UnitTestSchema,
             max_retries=3,
             max_tokens=1500,
@@ -115,7 +118,7 @@ def generate_curriculum(config_path: str = "test.yaml", output_dir: str = "outpu
             print(f"  -> Initial sandbox verification returned warnings/failures. Retrying QA Agent...")
             qa_retry_prompt = f"{qa_prompt}\n\n--- PREVIOUS SANDBOX VERIFICATION LOG ---\n{log}\n\nPlease fix the unit_test."
             unit_test_result = client.chat.completions.create(
-                model=MODEL_NAME,
+                model=model_name,
                 response_model=UnitTestSchema,
                 max_retries=2,
                 max_tokens=1500,
