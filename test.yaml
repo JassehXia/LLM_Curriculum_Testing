@@ -1,7 +1,7 @@
 curriculum:
   subject: "Applied Deep Learning in Medical & Computer Vision"
   target_level: "Undergraduate / Graduate"
-  model: "Qwen/Qwen2.5-Coder-32B-Instruct"
+  model: "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ"
   
   modules:
     - id: "pytorch-basics"

@@ -35,7 +35,7 @@ export CXX=g++
 export NVCC_CCBIN=gcc
 
 # Extract configured model name from test.yaml (single source of truth)
-MODEL_NAME=$(python -c "import yaml; cfg=yaml.safe_load(open('test.yaml')); print(cfg.get('curriculum', {}).get('model') or cfg.get('model') or 'Qwen/Qwen2.5-Coder-32B-Instruct')")
+MODEL_NAME=$(python -c "import yaml; cfg=yaml.safe_load(open('test.yaml')); print(cfg.get('curriculum', {}).get('model') or cfg.get('model') or 'Qwen/Qwen2.5-Coder-32B-Instruct-AWQ')")
 
 # 1. Spin up local vLLM server on the allocated GPU compute node
 echo "Starting vLLM server for model '${MODEL_NAME}' on port 8000..."

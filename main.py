@@ -20,7 +20,7 @@ from core import (
     ProblemStatementSchema
 )
 
-DEFAULT_MODEL_NAME = "Qwen/Qwen2.5-Coder-32B-Instruct"
+DEFAULT_MODEL_NAME = "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ"
 
 def generate_curriculum(config_path: str = "test.yaml", output_dir: str = "outputs", telemetry_dir: str = "first_phase_outputs"):
     """Main curriculum generation execution pipeline with Agent 0 problem formulation."""

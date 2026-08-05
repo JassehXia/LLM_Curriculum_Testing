@@ -10,7 +10,8 @@ spec:
   - name: vllm-container
     image: vllm/vllm-openai:latest
     args:
-      - "Qwen/Qwen2.5-Coder-32B-Instruct"
+      - "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ"
+      - "--quantization=awq"
       - "--host=0.0.0.0"
       - "--port=8000"
       - "--max-model-len=32768"
